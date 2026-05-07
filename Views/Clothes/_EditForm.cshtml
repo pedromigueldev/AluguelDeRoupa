@@ -1,0 +1,73 @@
+@model AluguelRoupa.Models.Clothes
+
+<form 
+    hx-post="/Clothes/Edit"
+    hx-target="#result"
+    hx-target-400="#error-message"
+    hx-swap="innerHTML"
+    enctype="multipart/form-data"
+    hx-swap-oob="true"
+    id="main-form"
+    >
+    
+    @Html.AntiForgeryToken()
+
+    <input type="hidden" name="Id" value="@Model.Id" />
+    <div id="error-message" hx-swap-oob="true"></div>
+    <div class="form-group">
+        <label for="exampleInputEmail1">Nome da roupa: </label>
+        <input 
+            class="form-control" 
+            name="Name" 
+            placeholder="Name"
+            value="@Model.Name"
+            />
+    </div>
+
+    <div class="form-group">
+        <label for="exampleInputEmail1">Descrição: </label>
+        <input 
+            class="form-control" 
+            name="Description" 
+            placeholder="Description" 
+            value="@Model.Description"
+            />
+    </div>
+    <div class="form-group">
+        <label for="exampleInputEmail1">Preço: </label>
+        <input 
+            class="form-control" 
+            type="number" 
+            step="0.01" 
+            name="Price" 
+            placeholder="Price" 
+            value="@Model.Price"
+         />
+    </div>
+    <div class="form-group">
+        <label for="exampleInputEmail1">Preço da lavagem: </label>
+        <input 
+            class="form-control" 
+            type="number" 
+            step="0.01" 
+            name="WashingPrice" 
+            placeholder="Washing Price" 
+            value="@Model.WashingPrice"
+         />
+    </div>
+
+    @* <div class="form-group">
+        <label for="exampleInputEmail1">Uma imagem: </label>
+        <input 
+            class="form-control" 
+            type="file" 
+            name="Image" 
+            accept="image/*" 
+            value="@Model.Name"
+            />
+    </div> *@
+
+    <div class="py-2">
+        <button class="btn btn-primary" type="submit">Salvar roupa</button>
+    </div>
+</form>

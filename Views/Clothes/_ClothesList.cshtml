@@ -1,0 +1,18 @@
+@model List<AluguelRoupa.Models.Clothes>
+
+<div id="error-message" hx-swap-oob="true">
+</div>
+
+<ul>
+@foreach (var item in Model)
+{
+    <li>
+        <strong>@item.Name</strong> - @item.Price
+        <p>@item.Description</p>
+        <form hx-get="/Clothes/Edit" enctype="multipart/form-data">
+            <input type="hidden" name="Id" value="@item.Id" />
+            <button type="submit">Edit</button>
+        </form>
+    </li>
+}
+</ul> 

@@ -1,0 +1,14 @@
+
+@{
+    ViewData["Title"] = "Roupas";
+}
+
+
+<h2>Clothes manegement</h2> 
+
+<form id="main-form" hx-get="/Clothes/Create" hx-trigger="load">
+    <div id="error-message" hx-swap-oob="true"></div>
+</form>
+
+<div id="result" hx-get="/Clothes" hx-target="this" hx-swap="innerHTML" hx-trigger="load">
+</div>
