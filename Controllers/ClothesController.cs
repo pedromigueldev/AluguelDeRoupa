@@ -17,7 +17,7 @@ public class ClothesController(IDbContextFactory<Context> dbContextFactory, ILog
         if (isHtmx)
         {
             using var _context = await dbContextFactory.CreateDbContextAsync();
-            var all = _context.Clothes.AsNoTracking().Take(10).OrderByDescending(e => e.Id).ToListAsync();
+            var all = await _context.Clothes.AsNoTracking().Take(10).OrderByDescending(e => e.Id).ToListAsync();
             return PartialView("_ClothesList", all);
         }
         return View();
@@ -30,17 +30,15 @@ public class ClothesController(IDbContextFactory<Context> dbContextFactory, ILog
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [Extensions.ValidateObj]
     public async Task<IActionResult> Create (ClothesCreate clothesCreate) {
-        var context = new ValidationContext(clothesCreate);
-        var results = clothesCreate.Validate(context).ToList();
-        if (results.Count > 0) return BadRequest(RenderValidationErrors(results));
-
         try
         {
             using var _context = await dbContextFactory.CreateDbContextAsync();
             await _context.Clothes.AddAsync(Clothes.NewFromCreate(clothesCreate));
             await _context.SaveChangesAsync();
-            var all = _context.Clothes.AsNoTracking().Take(10).OrderByDescending(e => e.Id).ToListAsync();
+            var all = await _context.Clothes.AsNoTracking().Take(10).OrderByDescending(e => e.Id).ToListAsync();
+            Response.Headers["HX-Trigger"] = "clothesChanged";
             return PartialView("_ClothesList", all);
         } catch (Exception ex)
         {
@@ -50,20 +48,19 @@ public class ClothesController(IDbContextFactory<Context> dbContextFactory, ILog
     }
 
     [HttpPost]
+    [ValidateAntiForgeryToken]
+    [Extensions.ValidateObj]
     public async Task<IActionResult> Edit (ClothesCreate clothesCreate, Guid Id) {
-        using var _context = await dbContextFactory.CreateDbContextAsync();
-        var context = new ValidationContext(clothesCreate);
-        var results = clothesCreate.Validate(context).ToList();
-        if (results.Count > 0) return BadRequest(RenderValidationErrors(results));
-
         try
         {
+            using var _context = await dbContextFactory.CreateDbContextAsync();
             var item = _context.Clothes.AsNoTracking().FirstOrDefault(e => e.Id == Id);
             if (item is null) return NotFound();
 
             _context.Clothes.Update(clothesCreate.NewFromCreateWithId(Id));
             await _context.SaveChangesAsync();
-            return await Index();
+            Response.Headers["HX-Trigger"] = "clothesChanged";
+            return PartialView("_CreateForm");
         } catch (Exception ex)
         {
             Logger.LogError(ex, $"Error editiing clothes: {clothesCreate}"); 
@@ -81,7 +78,7 @@ public class ClothesController(IDbContextFactory<Context> dbContextFactory, ILog
             var item = _context.Clothes.AsNoTracking().FirstOrDefault(e => e.Id == Id);
             if (item is null) 
                 return Error();
-
+            Response.Headers["HX-Trigger"] = "clothesChanged";
             return PartialView("_EditForm", item);
         } catch (Exception ex)
         {

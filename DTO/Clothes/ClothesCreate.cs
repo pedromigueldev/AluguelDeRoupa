@@ -6,9 +6,7 @@ namespace AluguelRoupa.DTO.Clothes;
 public record ClothesCreate(
     string Name,
     string Description,
-    [Range(0.01, double.MaxValue, ErrorMessage = "A quantidade deve ser maior que zero.")]
     decimal Price,
-    [Range(0.01, double.MaxValue, ErrorMessage = "A quantidade deve ser maior que zero.")]
     decimal WashingPrice,
     IFormFile Image
 ) : IValidatableObject
@@ -34,39 +32,34 @@ public record ClothesCreate(
 
 public static class ClothesCreateFun
 {
+    private static byte[] ToBytes(IFormFile file)
+    {
+        using var ms = new MemoryStream();
+        file.CopyTo(ms);
+        return ms.ToArray();
+    }
+    
+    private static Models.Clothes NewFrom(ClothesCreate clothesCreate) => 
+        Models.Clothes.New(
+            clothesCreate.Name, 
+            clothesCreate.Description, 
+            clothesCreate.Price, 
+            clothesCreate.WashingPrice,
+            clothesCreate.Image is { Length: > 0 }
+                ? ToBytes(clothesCreate.Image)
+                : []
+        );
+
     extension (ClothesCreate clothesCreate)
     {
         public Models.Clothes NewFromCreateWithId(Guid Id) =>
-            Models.Clothes.New(
-                clothesCreate.Name, 
-                clothesCreate.Description, 
-                clothesCreate.Price, 
-                clothesCreate.WashingPrice,
-                clothesCreate.Image is { Length: > 0 }
-                    ? ToBytes(clothesCreate.Image)
-                    : []
-            ) with { Id = Id };
+            NewFrom(clothesCreate) with { Id = Id };
     }
 
     extension(Models.Clothes)
     {
         public static Models.Clothes NewFromCreate(ClothesCreate clothesCreate) =>
-            Models.Clothes.New(
-                clothesCreate.Name, 
-                clothesCreate.Description, 
-                clothesCreate.Price, 
-                clothesCreate.WashingPrice,
-                clothesCreate.Image is { Length: > 0 }
-                    ? ToBytes(clothesCreate.Image)
-                    : []
-            );
-
-        private static byte[] ToBytes(IFormFile file)
-        {
-            using var ms = new MemoryStream();
-            file.CopyTo(ms);
-            return ms.ToArray();
-        }
+            NewFrom(clothesCreate);
     }
 
 }

@@ -10,5 +10,5 @@
     <div id="error-message" hx-swap-oob="true"></div>
 </form>
 
-<div id="result" hx-get="/Clothes" hx-target="this" hx-swap="innerHTML" hx-trigger="load">
+<div id="result" hx-get="/Clothes" hx-target="this" hx-swap="innerHTML" hx-trigger="load, clothesChanged from:body">
 </div>
